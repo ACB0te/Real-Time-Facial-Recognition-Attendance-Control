@@ -2,26 +2,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
-def dibujar_vectores(vectores, etiquetas=None, titulo="Vectores"):
+def dibujar_vectores(caras, titulo="Vectores"):
     """
-    Dibuja una lista de vectores en 2D.
+    Dibuja los vectores en 2D, con un color por persona.
 
-    vectores:  lista o array de N vectores (del tamaño que sean)
-    etiquetas: lista de N etiquetas para colorear (opcional)
-    metodo:    "pca" o "tsne"
+    caras:  diccionario {nombre: [vector1, vector2, ...]}
+    metodo: "pca" o "tsne"
     """
-    X = np.asarray(vectores)
+    nombres = list(caras)
+    X = np.vstack([np.asarray(caras[n]) for n in nombres])
 
     P = PCA(n_components=2).fit_transform(X)
 
     plt.figure(figsize=(7, 5))
-    if etiquetas is None:
-        plt.scatter(P[:, 0], P[:, 1], s=25)
-    else:
-        etiquetas = np.asarray(etiquetas)
-        for e in np.unique(etiquetas):
-            m = etiquetas == e
-            plt.scatter(P[m, 0], P[m, 1], s=25, label=str(e))
-        plt.legend()
-    plt.title(f"{titulo} ({metodo.upper()})")
+    inicio = 0
+    for n in nombres:
+        fin = inicio + len(caras[n])
+        plt.scatter(P[inicio:fin, 0], P[inicio:fin, 1], s=25, label=n)
+        inicio = fin
+    plt.legend()
+    plt.title(f"{titulo}")
     plt.show()
