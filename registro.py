@@ -2,8 +2,8 @@ from pathlib import Path
 
 import cv2
 
-from src.reconocimiento_caras import viola_jones
-from src.reconocimiento_caras import sacar_vector, entrenar_svm, guardar_knn
+from src.reconocimiento_caras.deteccion import viola_jones
+from src.reconocimiento_caras.embbedings import sacar_vector, entrenar_svm, guardar_knn
 from src.utils.representacion_vectores import dibujar_vectores
 
 CARPETA_DATOS = Path(__file__).resolve().parent / "datos"
