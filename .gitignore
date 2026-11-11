@@ -19,3 +19,6 @@ datos/
 # Modelos generados a partir de vuestras caras (se regeneran con regristro.py)
 modelos/svm/
 modelos/knn/
+
+# Recortes de caras del diagnóstico
+diagnostico/

@@ -2,7 +2,8 @@ import cv2
 from pathlib import Path
 
 
-RUTA_CASCADA = Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml"
+# En OpenCV 5 las cascadas ya no vienen en cv2.data: se carga la copia de modelos/
+RUTA_CASCADA = Path(__file__).resolve().parents[2] / "modelos" / "haarcascade_frontalface_default.xml"
 detector = cv2.CascadeClassifier(str(RUTA_CASCADA))
 
 def viola_jones(frame, scale_factor=1.1, min_neighbors=5, tam_min=80):

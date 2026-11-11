@@ -6,12 +6,12 @@ from sklearn.svm import SVC
 from sklearn.calibration import CalibratedClassifierCV
 
 # Ajusta la ruta a donde tengáis el modelo
-RUTA_SFACE = Path(__file__).resolve().parents[1] / "modelos" / "SFace" / "face_recognition_sface_2021dec.onnx"
+RUTA_SFACE = Path(__file__).resolve().parents[2] / "modelos" / "SFace" / "face_recognition_sface_2021dec.onnx"
 red = cv2.FaceRecognizerSF.create(str(RUTA_SFACE), "")
 # Carpeta donde se guarda el modelo de k-means
-CARPETA_KNN = Path(__file__).resolve().parents[1] / "modelos" / "knn"
+CARPETA_KNN = Path(__file__).resolve().parents[2] / "modelos" / "knn"
 # Carpeta donde se guarda el svm
-CARPETA_SVM = Path(__file__).resolve().parents[1] / "modelos" / "svm"
+CARPETA_SVM = Path(__file__).resolve().parents[2] / "modelos" / "svm"
 
 def sacar_vector(frame, caja, margen=0.1):
     """
@@ -51,7 +51,16 @@ def entrenar_svm(caras, nombre_modelo="svm.joblib"):
     y = np.asarray(y)
 
     # 2. Entrenar
-    svm = CalibratedClassifierCV(SVC(kernel="linear", C=10), ensemble=False)
+    # La calibración de probabilidades usa validación cruzada: no puede haber
+    # más particiones que vectores tenga la persona con menos fotos.
+    _, cuentas = np.unique(y, return_counts=True)
+    minimo = int(cuentas.min())
+    if minimo < 2:
+        raise ValueError("Cada persona necesita al menos 2 vectores para entrenar la SVM")
+    if minimo < 5:
+        print(f"Aviso: la persona con menos fotos tiene {minimo} vectores (se recomiendan 5 o más)")
+
+    svm = CalibratedClassifierCV(SVC(kernel="linear", C=10), ensemble=False, cv=min(5, minimo))
     svm.fit(X, y)
 
     # 3. Guardar

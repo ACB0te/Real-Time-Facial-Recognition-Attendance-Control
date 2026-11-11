@@ -57,7 +57,7 @@ def main():
     else:
         print("La SVM necesita al menos 2 personas")
 
-    dibujar_vectores(caras, metodo="pca", titulo="Registro")
+    dibujar_vectores(caras, titulo="Registro")
 
 
 if __name__ == "__main__":
