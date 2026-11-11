@@ -3,10 +3,10 @@ import numpy as np
 from pathlib import Path
 import joblib
 from sklearn.svm import SVC
-from sklearn.cluster import KMeans
+from sklearn.calibration import CalibratedClassifierCV
 
 # Ajusta la ruta a donde tengáis el modelo
-RUTA_SFACE = Path("modelos") / "face_recognition_sface_2021dec.onnx"
+RUTA_SFACE = Path(__file__).resolve().parents[1] / "modelos" / "SFace" / "face_recognition_sface_2021dec.onnx"
 red = cv2.FaceRecognizerSF.create(str(RUTA_SFACE), "")
 # Carpeta donde se guarda el modelo de k-means
 CARPETA_KNN = Path(__file__).resolve().parents[1] / "modelos" / "knn"
@@ -51,7 +51,7 @@ def entrenar_svm(caras, nombre_modelo="svm.joblib"):
     y = np.asarray(y)
 
     # 2. Entrenar
-    svm = SVC(kernel="linear", C=10, probability=True)
+    svm = CalibratedClassifierCV(SVC(kernel="linear", C=10), ensemble=False)
     svm.fit(X, y)
 
     # 3. Guardar
@@ -84,4 +84,50 @@ def clasificar_svm(svm, vector):
     i = np.argmax(probs)
     return str(svm.classes_[i]), float(probs[i])
 
+#knn con similitud coseno
 
+def guardar_knn(caras, nombre_archivo="knn.npz"):
+    """
+    Guarda todos los vectores del registro con sus nombres.
+
+    caras: diccionario {nombre: [vector1, vector2, ...]}
+    """
+    X, y = [], []
+    for nombre, lista in caras.items():
+        X.extend(lista)
+        y.extend([nombre] * len(lista))
+
+    CARPETA_KNN.mkdir(parents=True, exist_ok=True)
+    np.savez(CARPETA_KNN / nombre_archivo, X=np.asarray(X), y=np.asarray(y))
+    print(f"Guardados {len(X)} vectores de {len(caras)} personas")
+
+
+def cargar_knn(nombre_archivo="knn.npz"):
+    """Carga los vectores y etiquetas. Devuelve (X, y)."""
+    datos = np.load(CARPETA_KNN / nombre_archivo)
+    return datos["X"], datos["y"]
+
+
+def clasificar_knn(knn, vector, k=5):
+    """
+    k-NN con similitud del coseno.
+
+    knn:    (X, y) que devuelve cargar_knn
+    vector: vector de 128 de una cara (de sacar_vector)
+    Devuelve: (nombre, fracción de votos)
+    """
+    X, y = knn
+
+    # 1. Similitud con todos y los k más parecidos
+    sims = X @ vector
+    vecinos = np.argsort(sims)[::-1][:k]
+
+    # 2. Contar votos
+    votos = {}
+    for i in vecinos:
+        nombre = str(y[i])
+        votos[nombre] = votos.get(nombre, 0) + 1
+
+    # 3. El que tenga más votos
+    ganador = max(votos, key=votos.get)
+    return ganador, votos[ganador] / k
