@@ -2,8 +2,9 @@ from pathlib import Path
 
 import cv2
 
-from src.deteccion import viola_jones
-from src.vectores import sacar_vector, entrenar_svm, guardar_knn
+from src.reconocimiento_caras import viola_jones
+from src.reconocimiento_caras import sacar_vector, entrenar_svm, guardar_knn
+from src.utils.representacion_vectores import dibujar_vectores
 
 CARPETA_DATOS = Path(__file__).resolve().parent / "datos"
 EXTENSIONES = {".jpg", ".jpeg", ".png", ".bmp"}
@@ -55,6 +56,8 @@ def main():
         entrenar_svm(caras)
     else:
         print("La SVM necesita al menos 2 personas")
+
+    dibujar_vectores(caras, metodo="pca", titulo="Registro")
 
 
 if __name__ == "__main__":
