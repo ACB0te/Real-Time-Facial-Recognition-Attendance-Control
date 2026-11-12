@@ -8,7 +8,7 @@ from sklearn.calibration import CalibratedClassifierCV
 # Ajusta la ruta a donde tengáis el modelo
 RUTA_SFACE = Path(__file__).resolve().parents[2] / "modelos" / "SFace" / "face_recognition_sface_2021dec.onnx"
 red = cv2.FaceRecognizerSF.create(str(RUTA_SFACE), "")
-# Carpeta donde se guarda el modelo de k-means
+# Carpeta donde se guarda el modelo de knn
 CARPETA_KNN = Path(__file__).resolve().parents[2] / "modelos" / "knn"
 # Carpeta donde se guarda el svm
 CARPETA_SVM = Path(__file__).resolve().parents[2] / "modelos" / "svm"
@@ -115,13 +115,13 @@ def cargar_knn(nombre_archivo="knn.npz"):
     return datos["X"], datos["y"]
 
 
-def clasificar_knn(knn, vector, k=5):
+def probabilidades_knn(knn, vector, k=5):
     """
-    k-NN con similitud del coseno.
+    Fracción de los k vecinos que vota a cada persona.
 
     knn:    (X, y) que devuelve cargar_knn
     vector: vector de 128 de una cara (de sacar_vector)
-    Devuelve: (nombre, fracción de votos)
+    Devuelve: {nombre: fracción}
     """
     X, y = knn
 
@@ -129,12 +129,15 @@ def clasificar_knn(knn, vector, k=5):
     sims = X @ vector
     vecinos = np.argsort(sims)[::-1][:k]
 
-    # 2. Contar votos
-    votos = {}
+    # 2. Cada vecino suma 1/k a su persona
+    probs = {str(n): 0.0 for n in np.unique(y)}
     for i in vecinos:
-        nombre = str(y[i])
-        votos[nombre] = votos.get(nombre, 0) + 1
+        probs[str(y[i])] += 1 / k
+    return probs
 
-    # 3. El que tenga más votos
-    ganador = max(votos, key=votos.get)
-    return ganador, votos[ganador] / k
+
+def clasificar_knn(knn, vector, k=5):
+    """La persona más votada: (nombre, fracción de votos)."""
+    probs = probabilidades_knn(knn, vector, k)
+    nombre = max(probs, key=probs.get)
+    return nombre, probs[nombre]

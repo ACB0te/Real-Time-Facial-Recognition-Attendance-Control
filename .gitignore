@@ -16,9 +16,12 @@ __pycache__/
 # Fotos de caras (datos biométricos: no se suben)
 datos/
 
-# Modelos generados a partir de vuestras caras (se regeneran con regristro.py)
+# Modelos generados a partir de vuestras caras (se regeneran con registro.py)
 modelos/svm/
 modelos/knn/
 
 # Recortes de caras del diagnóstico
 diagnostico/
+
+# Listas de asistencia generadas
+asistencia/
