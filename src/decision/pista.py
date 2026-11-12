@@ -45,8 +45,3 @@ class Pista:
     def confirmar(self):
         self.nombre, _ = self.mejor()
         self.confirmada = True
-
-    def reiniciar(self):
-        """Empieza a contar de cero (p. ej. si pasa la ventana sin confirmarse)."""
-        self.sumas = {}
-        self.vista = 0
