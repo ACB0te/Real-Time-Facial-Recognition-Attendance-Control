@@ -75,23 +75,21 @@ def cargar_svm(nombre_modelo="svm.joblib"):
     return joblib.load(CARPETA_SVM / nombre_modelo)
 
 
+def probabilidades_svm(svm, vector):
+    """
+    Probabilidad de cada persona: {nombre: probabilidad}.
+    """
+    probs = svm.predict_proba(vector.reshape(1, -1))[0]
+    return {str(n): float(p) for n, p in zip(svm.classes_, probs)}
+
+
 def clasificar_svm(svm, vector):
     """
-    Clasifica un vector con la SVM.
-
-    svm:    la SVM entrenada (de entrenar_svm o cargar_svm)
-    vector: vector de 128 de una cara (de sacar_vector)
-    Devuelve: (nombre, probabilidad)
+    La persona más probable: (nombre, probabilidad).
     """
-    # 1. La SVM espera una matriz (filas = vectores), no un vector suelto
-    X = vector.reshape(1, -1)
-
-    # 2. Probabilidad de cada persona
-    probs = svm.predict_proba(X)[0]
-
-    # 3. La persona con más probabilidad
-    i = np.argmax(probs)
-    return str(svm.classes_[i]), float(probs[i])
+    probs = probabilidades_svm(svm, vector)
+    nombre = max(probs, key=probs.get)
+    return nombre, probs[nombre]
 
 #knn con similitud coseno
 
