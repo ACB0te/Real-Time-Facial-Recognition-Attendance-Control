@@ -31,15 +31,18 @@ class Pista:
         if not self.sumas:
             return None, 0.0
         nombre = max(self.sumas, key=self.sumas.get)
-        return nombre, self.sumas[nombre]
+        return nombre, self.sumas[nombre] / self.vista
 
-    def cumple_criterios(self, min_vista=8, umbral=4.0, margen=2.0):
-        """¿Se puede confirmar ya a la persona?"""
+    def cumple_criterios(self, min_vista=8, umbral=0.4, margen=0.15):
+        """
+        ¿Se puede confirmar ya a la persona?
+        Se usa la MEDIA por fotograma: no crece con el tiempo.
+        """
         if self.confirmada or self.vista < min_vista:
             return False
-        sumas = sorted(self.sumas.values(), reverse=True)
-        primera = sumas[0]
-        segunda = sumas[1] if len(sumas) > 1 else 0.0
+        medias = sorted((s / self.vista for s in self.sumas.values()), reverse=True)
+        primera = medias[0]
+        segunda = medias[1] if len(medias) > 1 else 0.0
         return primera >= umbral and primera - segunda >= margen
 
     def confirmar(self):

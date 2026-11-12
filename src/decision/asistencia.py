@@ -9,7 +9,7 @@ from src.decision.seguimiento import emparejar
 class Seguidor:
     """Lleva las pistas de todas las caras y decide quién ha entrado."""
 
-    def __init__(self, max_sin_ver=10, min_vista=8, umbral=4.0, margen=2.0, umbral_iou=0.3):
+    def __init__(self, max_sin_ver=10, min_vista=8, umbral=0.4, margen=0.15, umbral_iou=0.3):
         self.pistas = []          # pistas activas
         self.asistencia = {}      # {nombre: hora de entrada}
 
