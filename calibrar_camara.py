@@ -112,8 +112,8 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--fotos", type=Path, default=BASE_DIR / "fotos_chessboard")
     parser.add_argument("--salida", type=Path, default=BASE_DIR / "resultado")
-    parser.add_argument("--columnas", type=int, default=8)
-    parser.add_argument("--filas", type=int, default=6)
+    parser.add_argument("--columnas", type=int, default=6)
+    parser.add_argument("--filas", type=int, default=4)
     parser.add_argument("--lado-mm", type=float, default=30.0)
     args = parser.parse_args()
     if args.columnas < 2 or args.filas < 2 or not np.isfinite(args.lado_mm) or args.lado_mm <= 0:

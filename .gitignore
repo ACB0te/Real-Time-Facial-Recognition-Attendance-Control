@@ -16,6 +16,9 @@ __pycache__/
 # Fotos de caras (datos biométricos: no se suben)
 datos/
 
+# Fotos del tablero para calibrar la cámara
+calibracion/fotos_chessboard/
+
 # Modelos generados a partir de vuestras caras (se regeneran con registro.py)
 modelos/svm/
 modelos/knn/
